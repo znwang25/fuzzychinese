@@ -1,6 +1,11 @@
-from .fuzzy_chinese_match import FuzzyChineseMatch
-from .character_to_stroke import Stroke
-
+from ._fuzzy_chinese_match import FuzzyChineseMatch
+from ._character_to_stroke import Stroke
+import logging
+import sys
+log_console = logging.StreamHandler(sys.stderr)
+default_logger = logging.getLogger(__name__)
+default_logger.setLevel(logging.WARNING)
+default_logger.addHandler(log_console)
 # PEP0440 compatible formatted version, see:
 # https://www.python.org/dev/peps/pep-0440/
 #
@@ -17,6 +22,6 @@ from .character_to_stroke import Stroke
 # Dev branch marker is: 'X.Y.dev' or 'X.Y.devN' where N is an integer.
 # 'X.Y.dev0' is the canonical version of 'X.Y.dev'
 #
-__version__ = '0.1.dev0'
+__version__ = '0.1.0'
 
 __all__ = ['FuzzyChineseMatch', 'Stroke']

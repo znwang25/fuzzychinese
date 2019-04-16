@@ -1,21 +1,26 @@
-from .character_to_stroke import Stroke
+from ._character_to_stroke import Stroke
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import pandas as pd
+import logging
+default_logger = logging.getLogger(__name__)
 
 
 class FuzzyChineseMatch(object):
     """ 
     Match a collection of chinese words with a target list of words.
 
-    Parameters
+    **Parameters**
     ----------
-    ngram_range : tuple (min_n, max_n), default=(3, 3)
-        The lower and upper boundary of the range of n-values for different
-        n-grams to be extracted. All values of n such that min_n <= n <= max_n
-        will be used.
-    analyzer : string, {'char', 'stroke'} or callable
-        Whether the feature should be made of character or stroke n-grams.
+    *ngram_range* : tuple (min_n, max_n), default=(3, 3)
+
+    The lower and upper boundary of the range of n-values for different
+    n-grams to be extracted. All values of n such that min_n <= n <= max_n
+    will be used.
+
+    *analyzer* : string, {'char', 'stroke'}
+
+    Whether the feature should be made of character or stroke n-grams.
     """
 
     def __init__(self, ngram_range=(3, 3), analyzer='stroke'):
@@ -71,13 +76,14 @@ class FuzzyChineseMatch(object):
             return self._stroke_ngrams
 
         if self.analyzer == 'char':
-            return self._word_ngrams
+            return self._char_ngrams
 
     def _vectorize_dict(self, raw_documents):
         """ Vectorize the dictionary documents.
             Create sparse feature matrix, and vocabulary.
         """
         analyzer = self._build_analyzer()
+        default_logger.debug('Vectorizing dictionary documents ...')
         self._vectorizer = TfidfVectorizer(
             min_df=1, analyzer=analyzer, norm='l2')
         X = self._vectorizer.fit_transform(raw_documents)
@@ -89,10 +95,14 @@ class FuzzyChineseMatch(object):
         """ Vectorize documents need to be matched.
             Create sparse feature matrix, and vocabulary.
         """
+        default_logger.debug('Vectorizing documents to be matched ...')
         Y = self._vectorizer.transform(raw_documents)
         return Y
 
     def _get_cosine_similarity(self):
+        """ Calculate cosine similarity.
+        """
+        default_logger.debug('Calculating cosine similarity ...')
         if hasattr(self, 'dict_feature_matrix_'):
             self.sim_matrix_ = self.Y_feature_matrix_.dot(
                 self.dict_feature_matrix_.T).toarray()
@@ -100,6 +110,9 @@ class FuzzyChineseMatch(object):
             raise Exception('Need to fit dictionary first.')
 
     def _get_top_n_similar(self, n):
+        """ Find the top n similar words from cosine similarity matrix.
+        """
+        default_logger.debug('Finding the top n similar words ...')
         if hasattr(self, 'sim_matrix_'):
             if ~hasattr(self, 'topn_ind_') or (self.topn_ind_.shape[1] < n):
                 self.topn_ind_ = np.argpartition(
@@ -121,13 +134,15 @@ class FuzzyChineseMatch(object):
         """
         Learn the target list of the words.
 
-        Parameters
+        **Parameters**
         ----------
-        X : iterable
-            an iterable which yields str
-        Returns
+        *X* : iterable
+
+        an iterable which yields str
+
+        **Returns**
         -------
-        self : FuzzyChinese object
+        *self* : FuzzyChinese object
         """
 
         self.dict_feature_matrix_ = self._vectorize_dict(X)
@@ -137,19 +152,24 @@ class FuzzyChineseMatch(object):
     def fit_transform(self, X, n=3):
         """
         Learn the target list of the words.
-        Match similar words in the target.
+        Find similar words in the target itself.
 
-        Parameters
+        **Parameters**
         ----------
-        Y : iterable
-            an iterable which yields str
-        n : int
-            top n matched to be returned
-        Returns
+        *Y* : iterable
+
+        an iterable which yields str
+            
+        *n* : int
+
+        top n matched to be returned
+
+        **Returns**
         -------
-        X : A numpy matrix. [n_samples, n_matches]
-            Each row corresponds to the top n matches to the input row. 
-            Matches are sorted by descending order in similarity.
+        *X* : A numpy matrix. [n_samples, n_matches]
+
+        Each row corresponds to the top n matches to the input row. 
+        Matches are sorted by descending order in similarity.
         """
 
         if (~hasattr(self, 'dict_string_list') or self.dict_string_list != X):
@@ -162,17 +182,22 @@ class FuzzyChineseMatch(object):
         """
         Match the list of words to a target list of words.
 
-        Parameters
+        **Parameters**
         ----------
-        Y : iterable
-            an iterable which yields either str
-        n : int
-            top n matched to be returned
-        Returns
+        *Y* : iterable
+
+        an iterable which yields either str
+
+        *n* : int
+
+        top n matched to be returned
+
+        **Returns**
         -------
-        X : A numpy matrix. [n_samples, n_matches]
-            Each row corresponds to the top n matches to the input row. 
-            Matches are sorted by descending order in similarity.
+        *X* : A numpy matrix. [n_samples, n_matches]
+
+        Each row corresponds to the top n matches to the input row. 
+        Matches are sorted by descending order in similarity.
         """
         self.Y_string_list = np.array(Y)
         if (~hasattr(self, 'Y_string_list') or self.Y_string_list != Y):
@@ -180,13 +205,17 @@ class FuzzyChineseMatch(object):
             self._get_cosine_similarity()
         return self._get_top_n_similar(n)
 
-    def top_n_similar_score(self):
+    def get_similarity_score(self):
         """
-        Return the similarity score.
+        Return the similarity score for last transform call.
 
-        Returns
+        **Returns**
         -------
-        X : A numpy matrix. Each row corresponds to the similarity score of top n matches.
+
+        *X* : A numpy matrix. 
+        
+        Each row corresponds to the similarity score of 
+        top n matches.
         """
 
         if hasattr(self, 'Y_feature_matrix_'):
@@ -194,19 +223,22 @@ class FuzzyChineseMatch(object):
         else:
             raise Exception('Must run transform or fit_transform first.')
 
+    def __repr__(self):
+        return f'FuzzyChineseMatch(analyzer={self.analyzer}, ngram_range={self.ngram_range})'
+
 
 if __name__ == "__main__":
-    dict_list = pd.read_csv('test/dict.csv').chname
-    source_list = pd.read_csv('test/test_source.csv').town_name
-    stv = FuzzyChineseMatch(ngram_range=(3, 3), analyzer='stroke')
-    stv.fit(dict_list)
-    top3_similar = stv.transform(source_list[:500], n=3)
-    top3_similar = stv.fit_transform(source_list[:500], n=3)
+    dict_list = pd.read_csv('test/townname_dict.csv').chname
+    source_list = pd.read_csv('test/townname_raw.csv').town_name
+    fcm = FuzzyChineseMatch(ngram_range=(3, 3), analyzer='stroke')
+    fcm.fit(dict_list)
+    top3_similar = fcm.transform(source_list[:500], n=3)
+    top3_similar = fcm.fit_transform(source_list[:500], n=3)
     res = pd.concat([
         source_list[0:500],
         pd.DataFrame(top3_similar, columns=['top1', 'top2', 'top3']),
         pd.DataFrame(
-            stv.top_n_similar_score(),
+            fcm.get_similarity_score(),
             columns=['top1_score', 'top2_score', 'top3_score'])
     ],
                     axis=1)
