@@ -4,11 +4,11 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="fuzzy_chinese",
-    version="0.1.2",
+    name="fuzzychinese",
+    version="0.1.3",
     author="znwang25",
     author_email="znwang25@gmail.com",
-    description="A small package to fuzzy match chinese words",
+    description="A small package to fuzzy match chinese words 中文模糊匹配",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/znwang25/fuzzychinese",
@@ -24,4 +24,4 @@ setuptools.setup(
         'Topic :: Text Processing',
     ],
     keywords='NLP,fuzzy matching,Chinese word',
-    package_data={'fuzzy_chinese': ['*.*']})
+    package_data={'fuzzychinese': ['*.*']})
