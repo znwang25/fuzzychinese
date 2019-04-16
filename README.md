@@ -16,7 +16,7 @@ pip install fuzzychinese
 
 然后用`FuzzyChineseMatch.transform(raw_words, n)` 来快速查找与`raw_words`的词最相近的前n个词。
 
-训练模型时有两种分析方式可以选择，一种是比划分析，一种是单字分析。也可以通过调整`ngram_range`的值来提高模型性能。
+训练模型时有两种分析方式可以选择，一种是笔划分析，一种是单字分析。也可以通过调整`ngram_range`的值来提高模型性能。
 
 
 ```python
