@@ -34,15 +34,18 @@ pip install fuzzychinese
         pd.DataFrame(top2_similar, columns=['top1', 'top2']),
         pd.DataFrame(
             fcm.get_similarity_score(),
-            columns=['top1_score', 'top2_score'])],
+            columns=['top1_score', 'top2_score']),
+        pd.DataFrame(
+            fcm.get_index(),
+            columns=['top1_index', 'top2_index'])],
                     axis=1)
 ```
 
-|            | top1               | top2             | top1_score | top2_score |
-| ---------- | ------------------ | ---------------- | ---------- | ---------- |
-| 达茂联合旗 | 达尔罕茂明安联合旗 | 长白朝鲜族自治县 | 0.824751   | 0.287237   |
-| 长阳县     | 长阳土家族自治县   | 长白朝鲜族自治县 | 0.610285   | 0.475000   |
-| 汩罗市     | 汨罗市             | 长白朝鲜族自治县 | 1.000000   | 0.152093   |
+|            | top1               | top2             | top1_score | top2_score | top1_index | top2_index |
+| ---------- | ------------------ | ---------------- | ---------- | ---------- | ---------- | ---------- |
+| 达茂联合旗 | 达尔罕茂明安联合旗 | 长白朝鲜族自治县 | 0.824751   | 0.287237   | 3          | 0          |
+| 长阳县     | 长阳土家族自治县   | 长白朝鲜族自治县 | 0.610285   | 0.475000   | 1          | 0          |
+| 汩罗市     | 汨罗市             | 长白朝鲜族自治县 | 1.000000   | 0.152093   | 4          | 0          |
 
 ## Installation
 ```
@@ -72,12 +75,16 @@ There are two analyzers to choose from when training a model: stroke and charact
         pd.DataFrame(top2_similar, columns=['top1', 'top2']),
         pd.DataFrame(
             fcm.get_similarity_score(),
-            columns=['top1_score', 'top2_score'])],
+            columns=['top1_score', 'top2_score']),
+        pd.DataFrame(
+            fcm.get_index(),
+            columns=['top1_index', 'top2_index'])],
                     axis=1)
 ```
 
-|            | top1               | top2             | top1_score | top2_score |
-| ---------- | ------------------ | ---------------- | ---------- | ---------- |
-| 达茂联合旗 | 达尔罕茂明安联合旗 | 长白朝鲜族自治县 | 0.824751   | 0.287237   |
-| 长阳县     | 长阳土家族自治县   | 长白朝鲜族自治县 | 0.610285   | 0.475000   |
-| 汩罗市     | 汨罗市             | 长白朝鲜族自治县 | 1.000000   | 0.152093   |
+|            | top1               | top2             | top1_score | top2_score | top1_index | top2_index |
+| ---------- | ------------------ | ---------------- | ---------- | ---------- | ---------- | ---------- |
+| 达茂联合旗 | 达尔罕茂明安联合旗 | 长白朝鲜族自治县 | 0.824751   | 0.287237   | 3          | 0          |
+| 长阳县     | 长阳土家族自治县   | 长白朝鲜族自治县 | 0.610285   | 0.475000   | 1          | 0          |
+| 汩罗市     | 汨罗市             | 长白朝鲜族自治县 | 1.000000   | 0.152093   | 4          | 0          |
+

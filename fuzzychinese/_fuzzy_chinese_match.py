@@ -18,7 +18,7 @@ class FuzzyChineseMatch(object):
     n-grams to be extracted. All values of n such that min_n <= n <= max_n
     will be used.
 
-    *analyzer* : string, {'char', 'stroke'}
+    *analyzer* : string, {'char', 'stroke'}, default='stroke'
 
     Whether the feature should be made of character or stroke n-grams.
     """
@@ -78,6 +78,21 @@ class FuzzyChineseMatch(object):
         if self.analyzer == 'char':
             return self._char_ngrams
 
+    def _validate_data_input(self, X):
+        """ The data need to be in one dimension.
+        """
+        if isinstance(X, pd.DataFrame):
+            if X.shape[1] == 1:
+                return X.iloc[:, 0].to_numpy()
+            else:
+                raise Exception('Can only pass 1 dimension data.')
+        else:
+            X = np.array(X)
+            if X.ndim == 1:
+                return X
+            else:
+                raise Exception('Can only pass 1 dimension data.')
+
     def _vectorize_dict(self, raw_documents):
         """ Vectorize the dictionary documents.
             Create sparse feature matrix, and vocabulary.
@@ -115,20 +130,23 @@ class FuzzyChineseMatch(object):
         default_logger.debug('Finding the top n similar words ...')
         if hasattr(self, 'sim_matrix_'):
             if ~hasattr(self, 'topn_ind_') or (self.topn_ind_.shape[1] < n):
-                self.topn_ind_ = np.argpartition(
-                    -self.sim_matrix_, range(n), axis=1)[:, :n]
-            if (self.topn_ind_.shape[1] > n):
-                return list(
-                    map(
-                        lambda x: self.dict_string_list[x],
-                        self.topn_ind_[:, :n],
-                    ))
+                if (self.dict_string_list.shape[0] >= n):
+                    self.topn_ind_ = np.argpartition(
+                        -self.sim_matrix_, range(n), axis=1)[:, :n]
+                else:
+                    dict_len = self.dict_string_list.shape[0]
+                    self.topn_ind_ = np.argpartition(
+                        -self.sim_matrix_, range(dict_len),
+                        axis=1)[:, :dict_len]
+            if (n <= self.topn_ind_.shape[1]):
+                return self.dict_string_list[self.topn_ind_[:, :n]]
             else:
-                return list(
-                    map(
-                        lambda x: self.dict_string_list[x],
-                        self.topn_ind_,
-                    ))
+                place_filler = np.empty(
+                    [self.topn_ind_.shape[0], n - self.topn_ind_.shape[1]])
+                place_filler[:] = np.nan
+                res = np.append(self.dict_string_list[self.topn_ind_],
+                                place_filler, 1)
+                return res
 
     def fit(self, X):
         """
@@ -136,17 +154,19 @@ class FuzzyChineseMatch(object):
 
         **Parameters**
         ----------
-        *X* : iterable
+        *X* : list, pd.Series, 1d np.array or 1d pd.DataFrame
 
-        an iterable which yields str
+        an iterable yields chinese str in utf-8
 
         **Returns**
         -------
         *self* : FuzzyChinese object
         """
 
-        self.dict_feature_matrix_ = self._vectorize_dict(X)
-        self.dict_string_list = np.array(X)
+        self.dict_string_list = self._validate_data_input(X)
+        if isinstance(X, pd.Series) | isinstance(X, pd.DataFrame):
+            self._X_index = X.index.to_numpy()
+        self.dict_feature_matrix_ = self._vectorize_dict(self.dict_string_list)
         return self
 
     def fit_transform(self, X, n=3):
@@ -156,9 +176,9 @@ class FuzzyChineseMatch(object):
 
         **Parameters**
         ----------
-        *Y* : iterable
+        *Y* : list, pd.Series, 1d np.array or 1d pd.DataFrame
 
-        an iterable which yields str
+        an iterable yields chinese str in utf-8
             
         *n* : int
 
@@ -171,7 +191,7 @@ class FuzzyChineseMatch(object):
         Each row corresponds to the top n matches to the input row. 
         Matches are sorted by descending order in similarity.
         """
-
+        X = self._validate_data_input(X)
         if (~hasattr(self, 'dict_string_list') or self.dict_string_list != X):
             self.fit(X)
             self.Y_feature_matrix_ = self.dict_feature_matrix_
@@ -184,9 +204,9 @@ class FuzzyChineseMatch(object):
 
         **Parameters**
         ----------
-        *Y* : iterable
+        *Y* : list, pd.Series, 1d np.array or 1d pd.DataFrame
 
-        an iterable which yields either str
+        an iterable yields chinese str in utf-8
 
         *n* : int
 
@@ -199,8 +219,9 @@ class FuzzyChineseMatch(object):
         Each row corresponds to the top n matches to the input row. 
         Matches are sorted by descending order in similarity.
         """
-        self.Y_string_list = np.array(Y)
+        Y = self._validate_data_input(Y)
         if (~hasattr(self, 'Y_string_list') or self.Y_string_list != Y):
+            self.Y_string_list = Y
             self.Y_feature_matrix_ = self._vectorize_Y(Y)
             self._get_cosine_similarity()
         return self._get_top_n_similar(n)
@@ -223,12 +244,33 @@ class FuzzyChineseMatch(object):
         else:
             raise Exception('Must run transform or fit_transform first.')
 
+    def get_index(self):
+        """
+        Return the original index of the matched word.
+
+        **Returns**
+        -------
+
+        *X* : A numpy matrix. 
+        
+        Each row corresponds to the index of 
+        top n matches. Original index is return if exists.
+        """
+
+        if hasattr(self, 'topn_ind_'):
+            if hasattr(self, '_X_index'):
+                return self._X_index[self.topn_ind_]
+            else:
+                return self.topn_ind_
+        else:
+            raise Exception('Must run transform or fit_transform first.')
+
     def __repr__(self):
         return f'FuzzyChineseMatch(analyzer={self.analyzer}, ngram_range={self.ngram_range})'
 
 
 if __name__ == "__main__":
-    dict_list = pd.read_csv('test/townname_dict.csv').chname
+    dict_list = pd.read_csv('test/townname_dict.csv').set_index('')
     source_list = pd.read_csv('test/townname_raw.csv').town_name
     fcm = FuzzyChineseMatch(ngram_range=(3, 3), analyzer='stroke')
     fcm.fit(dict_list)
@@ -239,6 +281,9 @@ if __name__ == "__main__":
         pd.DataFrame(top3_similar, columns=['top1', 'top2', 'top3']),
         pd.DataFrame(
             fcm.get_similarity_score(),
-            columns=['top1_score', 'top2_score', 'top3_score'])
+            columns=['top1_score', 'top2_score', 'top3_score']),
+        pd.DataFrame(
+            fcm.get_index(),
+            columns=['top1_index', 'top2_index', 'top3_index'])
     ],
                     axis=1)
