@@ -169,16 +169,20 @@ class FuzzyChineseMatch(object):
         self.dict_feature_matrix_ = self._vectorize_dict(self.dict_string_list)
         return self
 
-    def fit_transform(self, X, n=3):
+    def fit_transform(self, X, Y=None, n=3):
         """
-        Learn the target list of the words.
-        Find similar words in the target itself.
+        Learn the words in X.
+        If Y is not passed, then find similar words in the X itself .
+        If Y is passed, for each word in Y, find the similar words in X.
 
         **Parameters**
         ----------
+
+        *X* : list, pd.Series, 1d np.array or 1d pd.DataFrame
+
         *Y* : list, pd.Series, 1d np.array or 1d pd.DataFrame
 
-        an iterable yields chinese str in utf-8
+        X and Y are iterables yield chinese str in utf-8
             
         *n* : int
 
@@ -186,16 +190,28 @@ class FuzzyChineseMatch(object):
 
         **Returns**
         -------
-        *X* : A numpy matrix. [n_samples, n_matches]
+        *res* : A numpy matrix. [n_samples, n_matches]
 
         Each row corresponds to the top n matches to the input row. 
         Matches are sorted by descending order in similarity.
         """
+        if isinstance(X, pd.Series) | isinstance(X, pd.DataFrame):
+            self._X_index = X.index.to_numpy()
         X = self._validate_data_input(X)
-        if (~hasattr(self, 'dict_string_list') or self.dict_string_list != X):
-            self.fit(X)
-            self.Y_feature_matrix_ = self.dict_feature_matrix_
+        self.dict_string_list = X
+        if Y is not None:
+            Y = self._validate_data_input(Y)
+            self.Y_string_list = Y
+            feature_matrix_ = self._vectorize_dict(np.append(X, Y))
+            self.dict_feature_matrix_ = feature_matrix_[:len(X)]
+            self.Y_feature_matrix_ = feature_matrix_[len(X):]
             self._get_cosine_similarity()
+        else:
+            if (~hasattr(self, 'dict_string_list')
+                    or self.dict_string_list != X):
+                self.fit(X)
+                self.Y_feature_matrix_ = self.dict_feature_matrix_
+                self._get_cosine_similarity()
         return self._get_top_n_similar(n)
 
     def transform(self, Y, n=3):
@@ -214,7 +230,7 @@ class FuzzyChineseMatch(object):
 
         **Returns**
         -------
-        *X* : A numpy matrix. [n_samples, n_matches]
+        *res* : A numpy matrix. [n_samples, n_matches]
 
         Each row corresponds to the top n matches to the input row. 
         Matches are sorted by descending order in similarity.
@@ -233,7 +249,7 @@ class FuzzyChineseMatch(object):
         **Returns**
         -------
 
-        *X* : A numpy matrix. 
+        *res* : A numpy matrix. 
         
         Each row corresponds to the similarity score of 
         top n matches.
@@ -251,7 +267,7 @@ class FuzzyChineseMatch(object):
         **Returns**
         -------
 
-        *X* : A numpy matrix. 
+        *res* : A numpy matrix. 
         
         Each row corresponds to the index of 
         top n matches. Original index is return if exists.
@@ -265,17 +281,47 @@ class FuzzyChineseMatch(object):
         else:
             raise Exception('Must run transform or fit_transform first.')
 
+    def compare_two_columns(self, X, Y):
+        """
+        Compare two columns and calculated similarity score for each pair on each row.
+
+        **Parameters**
+        ----------
+        *X* : list, pd.Series, 1d np.array or 1d pd.DataFrame
+        
+        *Y* : list, pd.Series, 1d np.array or 1d pd.DataFrame, have same length as X
+
+        **Returns**
+        -------
+
+        *res* : A numpy matrix. 
+        
+        Return two original columns and a new column for the similarity score.
+        """
+        X = self._validate_data_input(X)
+        Y = self._validate_data_input(Y)
+        if len(X) != len(Y):
+            raise Exception('The columns passed have different length!')
+        feature_matrix_ = self._vectorize_dict(np.append(X, Y))
+        X_feature_matrix_ = feature_matrix_[:len(X)]
+        Y_feature_matrix_ = feature_matrix_[len(X):]
+
+        # Perform rowwise dot product
+        similarity_score = np.einsum('ij,ij->i', X_feature_matrix_.toarray(),
+                                     Y_feature_matrix_.toarray())
+        return np.array([X, Y, similarity_score]).T
+
     def __repr__(self):
         return f'FuzzyChineseMatch(analyzer={self.analyzer}, ngram_range={self.ngram_range})'
 
 
 if __name__ == "__main__":
-    dict_list = pd.read_csv('test/townname_dict.csv').set_index('')
+    dict_list = pd.read_csv('test/townname_dict.csv').set_index('gbcode')
     source_list = pd.read_csv('test/townname_raw.csv').town_name
     fcm = FuzzyChineseMatch(ngram_range=(3, 3), analyzer='stroke')
     fcm.fit(dict_list)
     top3_similar = fcm.transform(source_list[:500], n=3)
-    top3_similar = fcm.fit_transform(source_list[:500], n=3)
+    top3_similar = fcm.fit_transform(dict_list, source_list[:500], n=3)
     res = pd.concat([
         source_list[0:500],
         pd.DataFrame(top3_similar, columns=['top1', 'top2', 'top3']),
@@ -287,3 +333,4 @@ if __name__ == "__main__":
             columns=['top1_index', 'top2_index', 'top3_index'])
     ],
                     axis=1)
+    fcm.compare_two_columns(res.town_name, res.top1)
