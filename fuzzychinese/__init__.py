@@ -1,5 +1,6 @@
 from ._fuzzy_chinese_match import FuzzyChineseMatch
 from ._character_to_stroke import Stroke
+from ._character_to_radical import Radical
 import logging
 import sys
 log_console = logging.StreamHandler(sys.stderr)
@@ -22,6 +23,6 @@ default_logger.addHandler(log_console)
 # Dev branch marker is: 'X.Y.dev' or 'X.Y.devN' where N is an integer.
 # 'X.Y.dev0' is the canonical version of 'X.Y.dev'
 #
-__version__ = '0.1.0'
+__version__ = "0.1.5"
 
-__all__ = ['FuzzyChineseMatch', 'Stroke']
+__all__ = ['FuzzyChineseMatch', 'Stroke', 'Radical']

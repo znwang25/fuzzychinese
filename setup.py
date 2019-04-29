@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="fuzzychinese",
-    version="0.1.4",
+    version="0.1.5",
     author="znwang25",
     author_email="znwang25@gmail.com",
     description="A small package to fuzzy match chinese words 中文模糊匹配",

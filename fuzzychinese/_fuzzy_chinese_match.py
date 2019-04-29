@@ -1,4 +1,5 @@
 from ._character_to_stroke import Stroke
+from ._character_to_radical import Radical
 from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 import pandas as pd
@@ -18,7 +19,7 @@ class FuzzyChineseMatch(object):
     n-grams to be extracted. All values of n such that min_n <= n <= max_n
     will be used.
 
-    *analyzer* : string, {'char', 'stroke'}, default='stroke'
+    *analyzer* : string, {'char', 'radical', 'stroke'}, default='stroke'
 
     Whether the feature should be made of character or stroke n-grams.
     """
@@ -27,56 +28,87 @@ class FuzzyChineseMatch(object):
         self.analyzer = analyzer
         self.ngram_range = ngram_range
 
-    def _stroke_ngrams(self, string):
-        """Tokenize text_document into a sequence of character n-grams"""
+    def _stroke_ngrams(self, word):
+        """Tokenize text_document into a sequence of stroke n-grams"""
         min_n, max_n = self.ngram_range
 
         char_strokes = []
         # bind method outside of loop to reduce overhead
         char_strokes_append = char_strokes.append
-        for char in string:
-            char_strokes_append(self.stroke_op.get_stroke(char))
+        for char in word:
+            char_strokes_append(self.tokenizer.get_stroke(char))
         # Separate character with '*'
-        string_strokes = '*'.join(char_strokes)
-        stroke_len = len(string_strokes)
+        word_strokes = '*'.join(char_strokes)
+        stroke_len = len(word_strokes)
         if min_n == 1:
             # no need to do any slicing for unigrams
             # iterate through the strokes
-            ngrams = list(string_strokes)
+            ngrams = list(word_strokes)
             min_n += 1
         else:
             ngrams = []
         for n in range(min_n, min(max_n + 1, stroke_len + 1)):
-            temp_zip = zip(*[string_strokes[i:] for i in range(n)])
+            temp_zip = zip(*[word_strokes[i:] for i in range(n)])
             ngrams += [''.join(ngram) for ngram in temp_zip]
         return ngrams
 
-    def _char_ngrams(self, string):
-        """Turn string into a sequence of n-grams """
+    def _radical_ngrams(self, word):
+        """Tokenize text_document into a sequence of radical n-grams"""
+        min_n, max_n = self.ngram_range
+
+        char_radicals = []
+        # bind method outside of loop to reduce overhead
+        char_radicals_append = char_radicals.append
+        for char in word:
+            char_radicals_append(self.tokenizer.get_radical(char))
+        # Separate character with '*'
+        word_radicals = '*'.join(char_radicals)
+        radical_len = len(word_radicals)
+        if min_n == 1:
+            # no need to do any slicing for unigrams
+            # iterate through the radicals
+            ngrams = list(word_radicals)
+            min_n += 1
+        else:
+            ngrams = []
+        for n in range(min_n, min(max_n + 1, radical_len + 1)):
+            temp_zip = zip(*[word_radicals[i:] for i in range(n)])
+            ngrams += [''.join(ngram) for ngram in temp_zip]
+        return ngrams
+
+    def _char_ngrams(self, word):
+        """Turn word into a sequence of n-grams """
         # handle token n-grams
         min_n, max_n = self.ngram_range
         if max_n != 1:
-            original_string = string
+            original_word = word
             if min_n == 1:
                 # no need to do any slicing for unigrams
-                # just iterate through the original string
-                string = list(original_string)
+                # just iterate through the original word
+                word = list(original_word)
                 min_n += 1
             else:
-                string = []
-            n_original_string = len(original_string)
-            for n in range(min_n, min(max_n + 1, n_original_string + 1)):
-                temp_zip = zip(*[original_string[i:] for i in range(n)])
-                string += [''.join(ngram) for ngram in temp_zip]
-        return string
+                word = []
+            n_original_word = len(original_word)
+            for n in range(min_n, min(max_n + 1, n_original_word + 1)):
+                temp_zip = zip(*[original_word[i:] for i in range(n)])
+                word += [''.join(ngram) for ngram in temp_zip]
+        return word
 
     def _build_analyzer(self):
         if self.analyzer == 'stroke':
-            self.stroke_op = Stroke()
+            self.tokenizer = Stroke()
             return self._stroke_ngrams
-
+        if self.analyzer == 'radical':
+            self.tokenizer = Radical()
+            return self._radical_ngrams
         if self.analyzer == 'char':
             return self._char_ngrams
+        else:
+            default_logger.warning(
+                f'Cannot find analyzer \'{self.analyzer}\', use default stroke analyzer instead.'
+            )
+            return self._stroke_ngrams
 
     def _validate_data_input(self, X):
         """ The data need to be in one dimension.
@@ -316,21 +348,22 @@ class FuzzyChineseMatch(object):
 
 
 if __name__ == "__main__":
-    dict_list = pd.read_csv('test/townname_dict.csv').set_index('gbcode')
-    source_list = pd.read_csv('test/townname_raw.csv').town_name
+    test_dict = pd.Series(
+        ['长白朝鲜族自治县', '长阳土家族自治县', '城步苗族自治县', '达尔罕茂明安联合旗', '汨罗市'])
+    raw_word = pd.Series(['达茂联合旗', '长阳县', '汩罗市'])
+    assert ('汩罗市' != '汨罗市')  # They are not the same!
+
     fcm = FuzzyChineseMatch(ngram_range=(3, 3), analyzer='stroke')
-    fcm.fit(dict_list)
-    top3_similar = fcm.transform(source_list[:500], n=3)
-    top3_similar = fcm.fit_transform(dict_list, source_list[:500], n=3)
+    fcm = FuzzyChineseMatch(ngram_range=(3, 3), analyzer='radical')
+    fcm = FuzzyChineseMatch(ngram_range=(3, 3), analyzer='char')
+    fcm.fit(test_dict)
+    top2_similar = fcm.transform(raw_word, n=2)
     res = pd.concat([
-        source_list[0:500],
-        pd.DataFrame(top3_similar, columns=['top1', 'top2', 'top3']),
+        raw_word,
+        pd.DataFrame(top2_similar, columns=['top1', 'top2']),
         pd.DataFrame(
-            fcm.get_similarity_score(),
-            columns=['top1_score', 'top2_score', 'top3_score']),
-        pd.DataFrame(
-            fcm.get_index(),
-            columns=['top1_index', 'top2_index', 'top3_index'])
+            fcm.get_similarity_score(), columns=['top1_score', 'top2_score']),
+        pd.DataFrame(fcm.get_index(), columns=['top1_index', 'top2_index'])
     ],
                     axis=1)
     fcm.compare_two_columns(res.town_name, res.top1)
