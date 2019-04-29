@@ -366,3 +366,4 @@ if __name__ == "__main__":
         pd.DataFrame(fcm.get_index(), columns=['top1_index', 'top2_index'])
     ],
                     axis=1)
+    fcm.compare_two_columns(res.town_name, res.top1)
