@@ -4,9 +4,9 @@ from ._utils import is_cjk
 default_logger = logging.getLogger(__name__)
 
 
-class Stroke(object):
+class Radical(object):
     """
-    Translate a chinese character into strokes.
+    Translate a chinese character into radicals.
 
     **Parameters**
     ----------
@@ -19,20 +19,20 @@ class Stroke(object):
     A valid dictionary should be a "UTF-8" encoded text file, having two 
             columns separated by space. First column is the character and the 
             second column is its corresponding decomposition with each char 
-            stands for each stroke. Note, the decomposition does not have to 
-            be strokes, it can be numbers or letters, or any sequence of chars 
+            stands for each Radical. Note, the decomposition does not have to 
+            be radicals, it can be numbers or letters, or any sequence of chars 
             you like).
 
         An example dictionary:
 
         -------
-        上 〡一一
-        下 一〡㇔
+        思 田心
+        疆 弓土畺
         -------
     """
 
     _default_dictionary_filepath = pkg_resources.resource_filename(
-        __name__, 'dict_chinese_stroke.txt')
+        __name__, 'dict_chinese_radical.txt')
 
     def __init__(self, dictionary_filepath=None):
         if dictionary_filepath:
@@ -43,16 +43,25 @@ class Stroke(object):
 
     def _read_dictionary(self):
         self._dictionary = {}
-        default_logger.debug('Reading stroke dictionary ...')
+        data = {}
+        default_logger.debug('Reading Radical dictionary ...')
         with open(self._dictionary_filepath, encoding="UTF-8") as f:
             for line in f:
-                line = line.strip("\n")
-                line = line.split(" ")
-                self._dictionary[line[0]] = line[1:]
+                if (self._dictionary_filepath ==
+                        self._default_dictionary_filepath):
+                    item_list = line.strip().split('\t')
+                    key = item_list[0]
+                    value = [i.strip().split() for i in item_list[1:]]
+                    self._dictionary[key] = value[0]
+                else:
+                    item_list = line.strip().split(' ')
+                    key = item_list[0]
+                    value = item_list[1:]
+                    self._dictionary[key] = value
 
-    def get_stroke(self, character, placeholder='', raise_error=False):
+    def get_radical(self, character, placeholder='', raise_error=False):
         """
-        Decompose a character into strokes based on dictionary. When a character can not be decomposed, itself will be returned. If it's not chinese, a placeholder is returned.
+        Decompose a character into radicals based on dictionary. When a character can not be decomposed, itself will be returned. If it's not chinese, a placeholder is returned.
 
         **Parameters**
         ----------
@@ -75,7 +84,6 @@ class Stroke(object):
 
         str, decomposition results.
         """
-
         if raise_error:
             if not is_cjk(character):
                 raise Exception(f'Character \'{character}\' is not Chinese.')
@@ -98,7 +106,7 @@ class Stroke(object):
 
 
 if __name__ == "__main__":
-    stroke = Stroke()
-    print("中", stroke.get_stroke("中"))
-    print("王", stroke.get_stroke("王"))
-    print("像", stroke.get_stroke("像"))
+    radical = Radical()
+    print("中", radical.get_radical("中"))
+    print("王", radical.get_radical("王"))
+    print("像", radical.get_radical("像"))
