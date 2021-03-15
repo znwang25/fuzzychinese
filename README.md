@@ -124,7 +124,7 @@ After the matching, similarity score, matched words and its corresponding index 
     ```
 + Use `FuzzyChineseMatch.compare_two_columns(X, Y)` to compare the pair of words in each row to get similarity score.
 
-+ See [documentation](http://znwang.me/fuzzychinese/) for details.
++ See [documentation](https://fuzzychinese.zenan-wang.com/) for details.
 
 
 ## Credits
