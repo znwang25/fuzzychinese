@@ -2,7 +2,7 @@ fuzzychinese
 =====
 形近词中文模糊匹配
 
-A simple tool to fuzzy match chinese words, particular useful for proper name matching and address matching. 
+A simple tool to fuzzy match chinese words, particular useful for proper name matching and address matching.
 
 一个可以模糊匹配形近字词的小工具。对于专有名词，地址的匹配尤其有用。
 

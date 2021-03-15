@@ -5,30 +5,26 @@ default_logger = logging.getLogger(__name__)
 
 
 class Stroke(object):
-    """
-    Translate a chinese character into strokes.
+    """A class to translate a chinese character into strokes.
+    
+    Parameters:
+        dictionary_filepath (str): default=None. 
+        File path for user provided dictionary. Default dictionary will be 
+                used if not specified. 
 
-    **Parameters**
-    ----------
+        A valid dictionary should be a "UTF-8" encoded text file, having two 
+                columns separated by space. First column is the character and the 
+                second column is its corresponding decomposition with each char 
+                stands for each stroke. Note, the decomposition does not have to 
+                be strokes, it can be numbers or letters, or any sequence of chars 
+                you like).
 
-    *dictionary_filepath* : str, default=None. 
+            An example dictionary:
+                | Character | Strokes |
+                | ----------- | ----------- |
+                | 上      | 〡一一      |
+                | 下   | 一〡㇔   |
 
-    File path for user provided dictionary. Default dictionary will be 
-            used if not specified. 
-
-    A valid dictionary should be a "UTF-8" encoded text file, having two 
-            columns separated by space. First column is the character and the 
-            second column is its corresponding decomposition with each char 
-            stands for each stroke. Note, the decomposition does not have to 
-            be strokes, it can be numbers or letters, or any sequence of chars 
-            you like).
-
-        An example dictionary:
-
-        -------
-        上 〡一一
-        下 一〡㇔
-        -------
     """
 
     _default_dictionary_filepath = pkg_resources.resource_filename(
@@ -51,29 +47,18 @@ class Stroke(object):
                 self._dictionary[line[0]] = line[1:]
 
     def get_stroke(self, character, placeholder='', raise_error=False):
-        """
-        Decompose a character into strokes based on dictionary. When a character can not be decomposed, itself will be returned. If it's not chinese, a placeholder is returned.
+        """Decompose a character into strokes based on dictionary. 
+        
+        When a character can not be decomposed, itself will be returned. If it's not chinese, a placeholder is returned.
 
-        **Parameters**
-        ----------
+        Parameters:
+            character (str): A chinese character to be decomposed.
+            placeholder (str): default = ''. Output to be used when the character is not chinese.
 
-        *character* : str
+            raise_error (boolean): default = False. If true, raise error if a character can not be decomposed. The default action is to show warnings.
 
-        A chinese character to be decomposed.
-
-        *placeholder* : str, default = ''
-
-        Output to be used when the character is not chinese.
-
-        *raise_error*: boolean, default = False
-
-        If true, raise error if a character can not be decomposed. 
-            The default action is to show warnings.
-
-        **Returns**
-        ----------
-
-        str, decomposition results.
+        Returns:
+            str: decomposition results.
         """
 
         if raise_error:

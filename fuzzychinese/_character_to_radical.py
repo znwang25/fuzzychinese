@@ -8,27 +8,23 @@ class Radical(object):
     """
     Translate a chinese character into radicals.
 
-    **Parameters**
-    ----------
+    Parameters:
+        dictionary_filepath (str): default=None. 
+        File path for user provided dictionary. Default dictionary will be 
+                used if not specified. 
 
-    *dictionary_filepath* : str, default=None. 
-
-    File path for user provided dictionary. Default dictionary will be 
-            used if not specified. 
-
-    A valid dictionary should be a "UTF-8" encoded text file, having two 
+        A valid dictionary should be a "UTF-8" encoded text file, having two 
             columns separated by space. First column is the character and the 
             second column is its corresponding decomposition with each char 
             stands for each Radical. Note, the decomposition does not have to 
             be radicals, it can be numbers or letters, or any sequence of chars 
             you like).
 
-        An example dictionary:
-
-        -------
-        思 田心
-        疆 弓土畺
-        -------
+            An example dictionary:
+                | Character | Radicals |
+                | ----------- | ----------- |
+                | 思      | 田心     |
+                | 疆   | 弓土畺   |
     """
 
     _default_dictionary_filepath = pkg_resources.resource_filename(
@@ -60,29 +56,19 @@ class Radical(object):
                     self._dictionary[key] = value
 
     def get_radical(self, character, placeholder='', raise_error=False):
-        """
-        Decompose a character into radicals based on dictionary. When a character can not be decomposed, itself will be returned. If it's not chinese, a placeholder is returned.
+        """Decompose a character into radicals based on dictionary. 
+        
+        When a character can not be decomposed, itself will be returned. If it's not chinese, a placeholder is returned.
 
-        **Parameters**
-        ----------
+        Parameters:
+            character (str): A chinese character to be decomposed.
+            placeholder (str): default = ''. Output to be used when the character is not chinese.
 
-        *character* : str
+            raise_error (boolean): default = False. If true, raise error if a character can not be decomposed. The default action is to show warnings.
 
-        A chinese character to be decomposed.
+        Returns:
+            str: decomposition results.
 
-        *placeholder* : str, default = ''
-
-        Output to be used when the character is not chinese.
-
-        *raise_error*: boolean, default = False
-
-        If true, raise error if a character can not be decomposed. 
-            The default action is to show warnings.
-
-        **Returns**
-        ----------
-
-        str, decomposition results.
         """
         if raise_error:
             if not is_cjk(character):

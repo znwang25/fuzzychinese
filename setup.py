@@ -13,6 +13,9 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/znwang25/fuzzychinese",
     packages=setuptools.find_packages(),
+    install_requires=[
+          'scikit-learn','pandas', 'numpy'
+      ],
     classifiers=[
         'Intended Audience :: Developers',
         "Programming Language :: Python :: 3",

@@ -8,20 +8,14 @@ default_logger = logging.getLogger(__name__)
 
 
 class FuzzyChineseMatch(object):
-    """ 
+    """The main class for the fuzzy match
+    
     Match a collection of chinese words with a target list of words.
 
-    **Parameters**
-    ----------
-    *ngram_range* : tuple (min_n, max_n), default=(3, 3)
+    Parameters:
+        ngram_range (tuple): (min_n, max_n), default=(3, 3). The lower and upper boundary of the range of n-values for different n-grams to be extracted. All values of n such that min_n <= n <= max_n will be used.
 
-    The lower and upper boundary of the range of n-values for different
-    n-grams to be extracted. All values of n such that min_n <= n <= max_n
-    will be used.
-
-    *analyzer* : string, {'char', 'radical', 'stroke'}, default='stroke'
-
-    Whether the feature should be made of character or stroke n-grams.
+        analyzer (string): {'char', 'radical', 'stroke'}, default='stroke'. Whether the feature should be made of character or stroke n-grams.
     """
 
     def __init__(self, ngram_range=(3, 3), analyzer='stroke'):
@@ -181,18 +175,13 @@ class FuzzyChineseMatch(object):
                 return res
 
     def fit(self, X):
-        """
-        Learn the target list of the words.
+        """Learn the words in X.
 
-        **Parameters**
-        ----------
-        *X* : list, pd.Series, 1d np.array or 1d pd.DataFrame
+        Parameters:
+            X (list, pd.Series, 1d np.array or 1d pd.DataFrame): An iterable yields chinese str in utf-8
 
-        an iterable yields chinese str in utf-8
-
-        **Returns**
-        -------
-        *self* : FuzzyChinese object
+        Returns:
+            FuzzyChinese object
         """
 
         self.dict_string_list = self._validate_data_input(X)
@@ -202,30 +191,20 @@ class FuzzyChineseMatch(object):
         return self
 
     def fit_transform(self, X, Y=None, n=3):
-        """
-        Learn the words in X.
+        """Learn the words in X and transform
+
         If Y is not passed, then find similar words in the X itself .
         If Y is passed, for each word in Y, find the similar words in X.
 
-        **Parameters**
-        ----------
+        Parameters:
+            X (list, pd.Series, 1d np.array or 1d pd.DataFrame): An iterable yield chinese str in utf-8
 
-        *X* : list, pd.Series, 1d np.array or 1d pd.DataFrame
-
-        *Y* : list, pd.Series, 1d np.array or 1d pd.DataFrame
-
-        X and Y are iterables yield chinese str in utf-8
+            Y (list, pd.Series, 1d np.array or 1d pd.DataFrame): An iterable yield chinese str in utf-8
             
-        *n* : int
+            n (int): top n matched to be returned
 
-        top n matched to be returned
-
-        **Returns**
-        -------
-        *res* : A numpy matrix. [n_samples, n_matches]
-
-        Each row corresponds to the top n matches to the input row. 
-        Matches are sorted by descending order in similarity.
+        Returns:
+            res (A numpy matrix): [n_samples, n_matches]. Each row corresponds to the top n matches to the input row. Matches are sorted by descending order in similarity.
         """
         if isinstance(X, pd.Series) | isinstance(X, pd.DataFrame):
             self._X_index = X.index.to_numpy()
@@ -247,25 +226,14 @@ class FuzzyChineseMatch(object):
         return self._get_top_n_similar(n)
 
     def transform(self, Y, n=3):
-        """
-        Match the list of words to a target list of words.
+        """Match the list of words to a target list(Y) of words.
 
-        **Parameters**
-        ----------
-        *Y* : list, pd.Series, 1d np.array or 1d pd.DataFrame
-
-        an iterable yields chinese str in utf-8
-
-        *n* : int
-
-        top n matched to be returned
-
-        **Returns**
-        -------
-        *res* : A numpy matrix. [n_samples, n_matches]
-
-        Each row corresponds to the top n matches to the input row. 
-        Matches are sorted by descending order in similarity.
+        Parameters:
+            Y (list, pd.Series, 1d np.array or 1d pd.DataFrame): an iterable yields chinese str in utf-8
+            n (int): top n matched to be returned
+            
+        Returns:
+            res (A numpy matrix): [n_samples, n_matches]. Each row corresponds to the top n matches to the input row. Matches are sorted by descending order in similarity.
         """
         Y = self._validate_data_input(Y)
         if (~hasattr(self, 'Y_string_list') or self.Y_string_list != Y):
@@ -275,16 +243,10 @@ class FuzzyChineseMatch(object):
         return self._get_top_n_similar(n)
 
     def get_similarity_score(self):
-        """
-        Return the similarity score for last transform call.
+        """Return the similarity score for last transform call.
 
-        **Returns**
-        -------
-
-        *res* : A numpy matrix. 
-        
-        Each row corresponds to the similarity score of 
-        top n matches.
+        Returns:
+            res (A numpy matrix): [n_samples, n_matches]. Each row corresponds to the similarity score of top n matches.
         """
 
         if hasattr(self, 'Y_feature_matrix_'):
@@ -293,15 +255,10 @@ class FuzzyChineseMatch(object):
             raise Exception('Must run transform or fit_transform first.')
 
     def get_index(self):
-        """
-        Return the original index of the matched word.
+        """Return the original index of the matched word.
 
-        **Returns**
-        -------
-
-        *res* : A numpy matrix. 
-        
-        Each row corresponds to the index of 
+        Returns:
+            res (A numpy matrix): [n_samples, n_matches]. Each row corresponds to the index of 
         top n matches. Original index is return if exists.
         """
 
@@ -317,18 +274,16 @@ class FuzzyChineseMatch(object):
         """
         Compare two columns and calculated similarity score for each pair on each row.
 
-        **Parameters**
-        ----------
-        *X* : list, pd.Series, 1d np.array or 1d pd.DataFrame
-        
-        *Y* : list, pd.Series, 1d np.array or 1d pd.DataFrame, have same length as X
+        Parameters:
+            X (list, pd.Series, 1d np.array or 1d pd.DataFrame): An iterable yield chinese str in utf-8
 
-        **Returns**
-        -------
+            Y (list, pd.Series, 1d np.array or 1d pd.DataFrame): Have same length as X. An iterable yield chinese str in utf-8
+            
+            n (int): top n matched to be returned
 
-        *res* : A numpy matrix. 
-        
-        Return two original columns and a new column for the similarity score.
+        Returns:
+            res (A numpy matrix): Return two original columns and a new column for the similarity score.
+
         """
         X = self._validate_data_input(X)
         Y = self._validate_data_input(Y)

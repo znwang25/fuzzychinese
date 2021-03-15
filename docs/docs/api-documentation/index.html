@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta name="generator" content="Hugo 0.81.0" />
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="fuzzychinese #  [view_source]
+fuzzychinese._character_to_stroke #  [view_source]
+Stroke Objects #  class Stroke(object) [view_source]
+A class to translate a chinese character into strokes.
+Arguments:
+  dictionary_filepath str - default=None. File path for user provided dictionary. Default dictionary will be used if not specified.
+A valid dictionary should be a &ldquo;UTF-8&rdquo; encoded text file, having two columns separated by space. First column is the character and the second column is its corresponding decomposition with each char stands for each stroke.">
+<meta name="theme-color" content="#FFFFFF"><meta property="og:title" content="API Documentation" />
+<meta property="og:description" content="fuzzychinese #  [view_source]
+fuzzychinese._character_to_stroke #  [view_source]
+Stroke Objects #  class Stroke(object) [view_source]
+A class to translate a chinese character into strokes.
+Arguments:
+  dictionary_filepath str - default=None. File path for user provided dictionary. Default dictionary will be used if not specified.
+A valid dictionary should be a &ldquo;UTF-8&rdquo; encoded text file, having two columns separated by space. First column is the character and the second column is its corresponding decomposition with each char stands for each stroke." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/docs/api-documentation/" /><meta property="article:section" content="docs" />
+
+
+
+<title>API Documentation | Fuzzychinese</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/favicon.png" type="image/x-icon">
+<link rel="stylesheet" href="/book.min.2bc2364a4a4b31f0ec1debecf0a8f90a840821f143dfe1ac6a0f7cbcbdcf64ac.css" integrity="sha256-K8I2SkpLMfDsHevs8Kj5CoQIIfFD3&#43;Gsag98vL3PZKw=">
+<script defer src="/en.search.min.f7e1c191b2aa9d16d17b5986196284dde841fc406d58ef137993a8808ed9d2d8.js" integrity="sha256-9&#43;HBkbKqnRbRe1mGGWKE3ehB/EBtWO8TeZOogI7Z0tg="></script>
+<!--
+Made with Book Theme
+https://github.com/alex-shpak/hugo-book
+-->
+
+  
+</head>
+
+<body dir="ltr">
+  <input type="checkbox" class="hidden toggle" id="menu-control" />
+  <input type="checkbox" class="hidden toggle" id="toc-control" />
+  <main class="container flex">
+    <aside class="book-menu">
+      <div class="book-menu-content">
+        
+  <nav>
+<h2 class="book-brand">
+  <a href="/"><span>Fuzzychinese</span>
+  </a>
+</h2>
+
+
+<div class="book-search">
+  <input type="text" id="book-search-input" placeholder="Search" aria-label="Search" maxlength="64" data-hotkeys="s/" />
+  <div class="book-search-spinner hidden"></div>
+  <ul id="book-search-results"></ul>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <ul>
+    
+      
+        <li>
+          
+  
+  
+
+  
+    <a href="/docs/api-documentation/" class=" active">API Documentation</a>
+  
+
+        </li>
+      
+    
+  </ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</nav>
+
+
+
+
+  <script>(function(){var a=document.querySelector("aside.book-menu nav");addEventListener("beforeunload",function(b){localStorage.setItem("menu.scrollTop",a.scrollTop)}),a.scrollTop=localStorage.getItem("menu.scrollTop")})()</script>
+
+
+ 
+      </div>
+    </aside>
+
+    <div class="book-page">
+      <header class="book-header">
+        
+  <div class="flex align-center justify-between">
+  <label for="menu-control">
+    <img src="/svg/menu.svg" class="book-icon" alt="Menu" />
+  </label>
+
+  <strong>API Documentation</strong>
+
+  <label for="toc-control">
+    
+    <img src="/svg/toc.svg" class="book-icon" alt="Table of Contents" />
+    
+  </label>
+</div>
+
+
+  
+  <aside class="hidden clearfix">
+    
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#stroke-objects">Stroke Objects</a>
+      <ul>
+        <li><a href="#get_stroke">get_stroke</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#fuzzychinesematch-objects">FuzzyChineseMatch Objects</a>
+      <ul>
+        <li><a href="#fit">fit</a></li>
+        <li><a href="#fit_transform">fit_transform</a></li>
+        <li><a href="#transform">transform</a></li>
+        <li><a href="#get_similarity_score">get_similarity_score</a></li>
+        <li><a href="#get_index">get_index</a></li>
+        <li><a href="#compare_two_columns">compare_two_columns</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#radical-objects">Radical Objects</a>
+      <ul>
+        <li><a href="#get_radical">get_radical</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+
+  </aside>
+  
+ 
+      </header>
+
+      
+      
+  <article class="markdown"><p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h1 id="fuzzychinese">
+  fuzzychinese
+  <a class="anchor" href="#fuzzychinese">#</a>
+</h1>
+<p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/__init__.py#L1">[view_source]</a></p>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h1 id="fuzzychinese_character_to_stroke">
+  fuzzychinese._character_to_stroke
+  <a class="anchor" href="#fuzzychinese_character_to_stroke">#</a>
+</h1>
+<p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_character_to_stroke.py#L1">[view_source]</a></p>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h2 id="stroke-objects">
+  Stroke Objects
+  <a class="anchor" href="#stroke-objects">#</a>
+</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Stroke</span>(object)
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_character_to_stroke.py#L7">[view_source]</a></p>
+<p>A class to translate a chinese character into strokes.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li>
+<p><code>dictionary_filepath</code> <em>str</em> - default=None.
+File path for user provided dictionary. Default dictionary will be
+used if not specified.</p>
+<p>A valid dictionary should be a &ldquo;UTF-8&rdquo; encoded text file, having two
+columns separated by space. First column is the character and the
+second column is its corresponding decomposition with each char
+stands for each stroke. Note, the decomposition does not have to
+be strokes, it can be numbers or letters, or any sequence of chars
+you like).</p>
+<p>An example dictionary:</p>
+<table>
+<thead>
+<tr>
+<th>Character</th>
+<th>Strokes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>上</td>
+<td>〡一一</td>
+</tr>
+<tr>
+<td>下</td>
+<td>一〡㇔</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h3 id="get_stroke">
+  get_stroke
+  <a class="anchor" href="#get_stroke">#</a>
+</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"> <span style="color:#f92672">|</span> get_stroke(character, placeholder<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;&#39;</span>, raise_error<span style="color:#f92672">=</span>False)
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_character_to_stroke.py#L49">[view_source]</a></p>
+<p>Decompose a character into strokes based on dictionary.</p>
+<p>When a character can not be decomposed, itself will be returned. If it&rsquo;s not chinese, a placeholder is returned.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li>
+<p><code>character</code> <em>str</em> - A chinese character to be decomposed.</p>
+</li>
+<li>
+<p><code>placeholder</code> <em>str</em> - default = &lsquo;&rsquo;. Output to be used when the character is not chinese.</p>
+</li>
+<li>
+<p><code>raise_error</code> <em>boolean</em> - default = False. If true, raise error if a character can not be decomposed. The default action is to show warnings.</p>
+</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>str</code> - decomposition results.</li>
+</ul>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h1 id="fuzzychinese_fuzzy_chinese_match">
+  fuzzychinese._fuzzy_chinese_match
+  <a class="anchor" href="#fuzzychinese_fuzzy_chinese_match">#</a>
+</h1>
+<p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_fuzzy_chinese_match.py#L1">[view_source]</a></p>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h2 id="fuzzychinesematch-objects">
+  FuzzyChineseMatch Objects
+  <a class="anchor" href="#fuzzychinesematch-objects">#</a>
+</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">FuzzyChineseMatch</span>(object)
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_fuzzy_chinese_match.py#L10">[view_source]</a></p>
+<p>The main class for the fuzzy match</p>
+<p>Match a collection of chinese words with a target list of words.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li>
+<p><code>ngram_range</code> <em>tuple</em> - (min_n, max_n), default=(3, 3). The lower and upper boundary of the range of n-values for different n-grams to be extracted. All values of n such that min_n &lt;= n &lt;= max_n will be used.</p>
+</li>
+<li>
+<p><code>analyzer</code> <em>string</em> - {&lsquo;char&rsquo;, &lsquo;radical&rsquo;, &lsquo;stroke&rsquo;}, default=&lsquo;stroke&rsquo;. Whether the feature should be made of character or stroke n-grams.</p>
+</li>
+</ul>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h3 id="fit">
+  fit
+  <a class="anchor" href="#fit">#</a>
+</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"> <span style="color:#f92672">|</span> fit(X)
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_fuzzy_chinese_match.py#L177">[view_source]</a></p>
+<p>Learn the words in X.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>X</code> <em>list, pd.Series, 1d np.array or 1d pd.DataFrame</em> - An iterable yields chinese str in utf-8</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<p>FuzzyChinese object</p>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h3 id="fit_transform">
+  fit_transform
+  <a class="anchor" href="#fit_transform">#</a>
+</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"> <span style="color:#f92672">|</span> fit_transform(X, Y<span style="color:#f92672">=</span>None, n<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_fuzzy_chinese_match.py#L193">[view_source]</a></p>
+<p>Learn the words in X and transform</p>
+<p>If Y is not passed, then find similar words in the X itself .
+If Y is passed, for each word in Y, find the similar words in X.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li>
+<p><code>X</code> <em>list, pd.Series, 1d np.array or 1d pd.DataFrame</em> - An iterable yield chinese str in utf-8</p>
+</li>
+<li>
+<p><code>Y</code> <em>list, pd.Series, 1d np.array or 1d pd.DataFrame</em> - An iterable yield chinese str in utf-8</p>
+</li>
+<li>
+<p><code>n</code> <em>int</em> - top n matched to be returned</p>
+</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>res</code> <em>A numpy matrix</em> - [n_samples, n_matches]. Each row corresponds to the top n matches to the input row. Matches are sorted by descending order in similarity.</li>
+</ul>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h3 id="transform">
+  transform
+  <a class="anchor" href="#transform">#</a>
+</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"> <span style="color:#f92672">|</span> transform(Y, n<span style="color:#f92672">=</span><span style="color:#ae81ff">3</span>)
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_fuzzy_chinese_match.py#L228">[view_source]</a></p>
+<p>Match the list of words to a target list(Y) of words.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li><code>Y</code> <em>list, pd.Series, 1d np.array or 1d pd.DataFrame</em> - an iterable yields chinese str in utf-8</li>
+<li><code>n</code> <em>int</em> - top n matched to be returned</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>res</code> <em>A numpy matrix</em> - [n_samples, n_matches]. Each row corresponds to the top n matches to the input row. Matches are sorted by descending order in similarity.</li>
+</ul>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h3 id="get_similarity_score">
+  get_similarity_score
+  <a class="anchor" href="#get_similarity_score">#</a>
+</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"> <span style="color:#f92672">|</span> get_similarity_score()
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_fuzzy_chinese_match.py#L245">[view_source]</a></p>
+<p>Return the similarity score for last transform call.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>res</code> <em>A numpy matrix</em> - [n_samples, n_matches]. Each row corresponds to the similarity score of top n matches.</li>
+</ul>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h3 id="get_index">
+  get_index
+  <a class="anchor" href="#get_index">#</a>
+</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"> <span style="color:#f92672">|</span> get_index()
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_fuzzy_chinese_match.py#L257">[view_source]</a></p>
+<p>Return the original index of the matched word.</p>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>res</code> <em>A numpy matrix</em> - [n_samples, n_matches]. Each row corresponds to the index of
+top n matches. Original index is return if exists.</li>
+</ul>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h3 id="compare_two_columns">
+  compare_two_columns
+  <a class="anchor" href="#compare_two_columns">#</a>
+</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"> <span style="color:#f92672">|</span> compare_two_columns(X, Y)
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_fuzzy_chinese_match.py#L273">[view_source]</a></p>
+<p>Compare two columns and calculated similarity score for each pair on each row.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li>
+<p><code>X</code> <em>list, pd.Series, 1d np.array or 1d pd.DataFrame</em> - An iterable yield chinese str in utf-8</p>
+</li>
+<li>
+<p><code>Y</code> <em>list, pd.Series, 1d np.array or 1d pd.DataFrame</em> - Have same length as X. An iterable yield chinese str in utf-8</p>
+</li>
+<li>
+<p><code>n</code> <em>int</em> - top n matched to be returned</p>
+</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>res</code> <em>A numpy matrix</em> - Return two original columns and a new column for the similarity score.</li>
+</ul>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h1 id="fuzzychinese_character_to_radical">
+  fuzzychinese._character_to_radical
+  <a class="anchor" href="#fuzzychinese_character_to_radical">#</a>
+</h1>
+<p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_character_to_radical.py#L1">[view_source]</a></p>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h2 id="radical-objects">
+  Radical Objects
+  <a class="anchor" href="#radical-objects">#</a>
+</h2>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Radical</span>(object)
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_character_to_radical.py#L7">[view_source]</a></p>
+<p>Translate a chinese character into radicals.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li>
+<p><code>dictionary_filepath</code> <em>str</em> - default=None.
+File path for user provided dictionary. Default dictionary will be
+used if not specified.</p>
+<p>A valid dictionary should be a &ldquo;UTF-8&rdquo; encoded text file, having two
+columns separated by space. First column is the character and the
+second column is its corresponding decomposition with each char
+stands for each Radical. Note, the decomposition does not have to
+be radicals, it can be numbers or letters, or any sequence of chars
+you like).</p>
+<p>An example dictionary:</p>
+<table>
+<thead>
+<tr>
+<th>Character</th>
+<th>Radicals</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>思</td>
+<td>田心</td>
+</tr>
+<tr>
+<td>疆</td>
+<td>弓土畺</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h3 id="get_radical">
+  get_radical
+  <a class="anchor" href="#get_radical">#</a>
+</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"> <span style="color:#f92672">|</span> get_radical(character, placeholder<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;&#39;</span>, raise_error<span style="color:#f92672">=</span>False)
+</code></pre></div><p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_character_to_radical.py#L58">[view_source]</a></p>
+<p>Decompose a character into radicals based on dictionary.</p>
+<p>When a character can not be decomposed, itself will be returned. If it&rsquo;s not chinese, a placeholder is returned.</p>
+<p><strong>Arguments</strong>:</p>
+<ul>
+<li>
+<p><code>character</code> <em>str</em> - A chinese character to be decomposed.</p>
+</li>
+<li>
+<p><code>placeholder</code> <em>str</em> - default = &lsquo;&rsquo;. Output to be used when the character is not chinese.</p>
+</li>
+<li>
+<p><code>raise_error</code> <em>boolean</em> - default = False. If true, raise error if a character can not be decomposed. The default action is to show warnings.</p>
+</li>
+</ul>
+<p><strong>Returns</strong>:</p>
+<ul>
+<li><code>str</code> - decomposition results.</li>
+</ul>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<h1 id="fuzzychinese_utils">
+  fuzzychinese._utils
+  <a class="anchor" href="#fuzzychinese_utils">#</a>
+</h1>
+<p><a href="https://github.com/znwang25/fuzzychinese/blob/7828bdf30550e2e49d56f9194100aafc6f2571fc/fuzzychinese/_utils.py#L4">[view_source]</a></p>
+</article>
+ 
+      
+
+      <footer class="book-footer">
+        
+  <div class="flex flex-wrap justify-between">
+
+
+
+
+
+</div>
+
+ 
+        
+      </footer>
+
+      
+  
+  <div class="book-comments">
+
+</div>
+  
+ 
+
+      <label for="menu-control" class="hidden book-menu-overlay"></label>
+    </div>
+
+    
+    <aside class="book-toc">
+      <div class="book-toc-content">
+        
+  
+<nav id="TableOfContents">
+  <ul>
+    <li><a href="#stroke-objects">Stroke Objects</a>
+      <ul>
+        <li><a href="#get_stroke">get_stroke</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#fuzzychinesematch-objects">FuzzyChineseMatch Objects</a>
+      <ul>
+        <li><a href="#fit">fit</a></li>
+        <li><a href="#fit_transform">fit_transform</a></li>
+        <li><a href="#transform">transform</a></li>
+        <li><a href="#get_similarity_score">get_similarity_score</a></li>
+        <li><a href="#get_index">get_index</a></li>
+        <li><a href="#compare_two_columns">compare_two_columns</a></li>
+      </ul>
+    </li>
+  </ul>
+
+  <ul>
+    <li><a href="#radical-objects">Radical Objects</a>
+      <ul>
+        <li><a href="#get_radical">get_radical</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+
+ 
+      </div>
+    </aside>
+    
+  </main>
+
+  
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,24 @@
+loaders:
+  - type: python
+processors:
+  - type: google
+  - type: filter
+  - type: crossref
+renderer:
+  type: hugo
+  markdown:
+    source_linker: {type: github, repo: znwang25/fuzzychinese}
+    header_level_by_type: {Module: 1,Class: 2, Method: 3,Function: 3, Data: 3}
+  config:
+    title: Fuzzychinese
+    theme: {clone_url: "https://github.com/alex-shpak/hugo-book.git"}
+  # The "book" theme only renders pages in "content/docs" into the nav.
+  content_directory: content/docs
+  default_preamble: {menu: main}
+  pages:
+    - title: Home
+      name: index
+      source: README.md
+    - title: API Documentation
+      contents:
+        - '*'
