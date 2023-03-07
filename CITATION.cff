@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: FuzzyChinese
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Zenan
+    family-names: Wang
+    orcid: 'https://orcid.org/0000-0001-6337-6548'
+repository-code: 'https://github.com/znwang25/fuzzychinese'
+abstract: >-
+  A simple tool to fuzzy match Chinese words, particular
+  useful for proper name matching and address matching.
+keywords:
+  - text-processing
+  - chinese
+  - fuzzy-matching
+  - nlp
+license: BSD-3-Clause
+version: '0.1.5 '
+date-released: '2019-04-29'
